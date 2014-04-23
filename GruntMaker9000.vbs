@@ -1,6 +1,6 @@
 '----------------'
 '-GRUNTMAKER9000-'
-'------v2.0------'
+'------v2.6------'
 '---James Park---'
 '------2014------'
 '----------------'
@@ -18,6 +18,11 @@ pName = InputBox("Now please enter the name for your new Project theme:", "Grunt
 If Len(pName) = 0 Then
 	Wscript.Quit
 End If
+
+'Asks user if they want a full Wordpress install, or the base folders for manual download
+fullWP = _
+    Msgbox("Do you want a full Wordpress install? (All WP files will be copied to directory).", _
+        vbYesNo, "Full WP Install")
 
 'Opens a connection to the Windows file editing functionality
 Const Overwrite = True
@@ -37,18 +42,30 @@ Loop
 'Get GruntMaker Directory
 thisDir = oFSO.GetAbsolutePathName(".")
 wpZip = thisDir & "\Source\wordpress.zip"
+wpZipFull = thisDir & "\Source\wordpress-full.zip"
 tZip = thisDir & "\Source\theme.zip"
 wpExtract = rootFolder
 tExtract = themeFolder
 
-'If the entered Root folder doesn't exist, then create it
-If Not oFSO.FolderExists(rootFolder) Then
-	oFSO.CreateFolder rootFolder
-	'If the root folder doesn't exist, extract the basic WP Structure
-	set wpUnzip = CreateObject("Shell.Application")
-	set wpFilesInZip = wpUnzip.NameSpace(wpZip).Items()
-	wpUnzip.NameSpace(wpExtract).CopyHere(wpFilesInZip)
-	set wpUnzip = Nothing
+If fullWP = vbYes Then
+	'If the entered Root folder doesn't exist, then create it
+	If Not oFSO.FolderExists(rootFolder) Then
+		oFSO.CreateFolder rootFolder
+		'If the root folder doesn't exist, extract the basic WP Structure
+		set wpUnzip = CreateObject("Shell.Application")
+		set wpFilesInZip = wpUnzip.NameSpace(wpZipFull).Items()
+		wpUnzip.NameSpace(wpExtract).CopyHere(wpFilesInZip)
+		set wpUnzip = Nothing
+	End If
+Else
+	If Not oFSO.FolderExists(rootFolder) Then
+		oFSO.CreateFolder rootFolder
+		'If the root folder doesn't exist, extract the basic WP Structure
+		set wpUnzip = CreateObject("Shell.Application")
+		set wpFilesInZip = wpUnzip.NameSpace(wpZip).Items()
+		wpUnzip.NameSpace(wpExtract).CopyHere(wpFilesInZip)
+		set wpUnzip = Nothing
+	End If
 End If
 
 'Create the new Theme folder
